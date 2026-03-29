@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Honey Obrador</title>
+    <style>
+        /* --- ESTILOS BASE (Se mantienen igual) --- */
+        :root 
+        { 
+    --primary: #3498db; 
+    --bg-body: #f4f7f6; 
+    --bg-card: #ffffff; 
+    --text-main: #2c3e50; 
+    --font-size: 16px; /* Tamaño base */
+        }
+        
+        body 
+        { 
+    margin: 0;                              /* Ajustando el Margen de la pagina */
+    padding: 0;                              /* Ajustando el espaciado de la pagina */ 
+    font-family: 'Segoe UI', sans-serif;       /* Estableciendo una familia de letra por defecto */
+    background-color: var(--bg-body);           /* captura un cambio de backgorund para el body */
+    color: var(--text-main);                    /* captura un cambio de color para el texto */
+    font-size: var(--font-size);                /* captura el cambio de cambio de fuente */
+    display: flex;                              /* para ajustar el diseño del cuerpo a flexbox */
+    flex-direction: column;                     /* para organizar los elementos en columna */
+    min-height: 100vh;                      /* que el cuerpo ocupe toda la altura de la ventana */
+    transition: all 0.3s ease;              /* Para que el cambio de color sea suave */
+        }
+        
+        header 
+        { 
+    background-color: var(--bg-card); /*  para capturar el cambio de color del header */
+    padding: 20px; 
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    position: sticky; 
+    top: 0; 
+    z-index: 1000; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+        }
+
+        footer 
+        { 
+    background-color: var(--bg-card); /*  para capturar el cambio de color del header */
+    padding: 2px 20px; 
+    box-shadow: 1px -2px 10px rgba(5, 10, 106, 0.1); 
+    position: sticky; 
+    bottom: 0;
+    z-index: 1000; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; 
+    align-items: center; 
+        }
+
+        .menu-options { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+        main { flex: 1; display: flex; justify-content: center; padding: 40px 20px; }
+        .content-wrapper { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 25px; }
+        #display-name { display: inline-block; font-size: var(--font-size); text-decoration:underline;}
+    
+        /*Panel de Cambios adaptativos*/
+        .panel 
+        { 
+    border: 2px solid #ccc; 
+    padding: 0px; 
+    border-radius: 5px; 
+    margin-bottom: 20px; 
+    background: transparent;
+     
+    color: #333; 
+    display: flex;
+    align-items: center;
+    border: none;
+        }
+
+        /* Quitamos el margen del título para que no empuje el footer */
+        .panel h3 
+        { 
+    margin: 0; 
+    font-size: 0.9rem; 
+    margin-right: 15px; 
+    color: var(--text-main);
+        }
+
+        .panel label 
+        {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+        }
+
+        /* Los aJustes de Apariencia las Clases segun el modo que se elija */
+        .dark-mode { 
+    --bg-body: #2c3e50; 
+    --bg-card: #34495e; 
+    --text-main: #ecf0f1; 
+        }
+
+        .high-contrast 
+        { 
+    --bg-body: #000000; 
+    --bg-card: #000000; 
+    --text-main: #ffff00; /* Amarillo sobre negro suele ser el estándar de alto contraste */
+        }
+
+        .large-text 
+        { 
+    --font-size: 26px; 
+        }
+        
+        /* --- ESTILOS DE LA TARJETA (Actualizados para la animación) --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            
+            /* Preparación para la animación */
+            opacity: 0; /* Empieza invisible */
+            transform: translateY(20px); /* Empieza un poco más abajo */
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Define la transición */
+        }
+
+        /* Clase que activa la entrada (Fade-in) */
+        .card.fade-in {
+            opacity: 1; /* Se vuelve visible */
+            transform: translateY(0); /* Vuelve a su posición original */
+        }
+
+        /* Clase que activa la salida (Fade-out) */
+        .card.fade-out {
+            opacity: 0; /* Se vuelve invisible */
+            transform: translateY(-20px); /* Se mueve un poco hacia arriba */
+            /* Importante: La transición de salida debe coincidir con el tiempo del JS */
+        }
+
+        .card:hover { transform: translateY(-5px); }
+        .card img { width: 300px; object-fit: cover; }
+        .card-body { padding: 25px; }
+        
+        /* Controles y utilidades */
+        input[type="text"] { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 250px; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        .hidden { display: none; }
+        @media (max-width: 600px) { .card { flex-direction: column; } .card img { width: 100%; height: 200px; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div id="login-section">
+            <input type="text" id="username" placeholder="Ingresa tu nombre para comenzar...">
+            <button onclick="cargarPerfil()">Cargar Perfil</button>
+        </div>
+
+        <div id="settings-section" class="hidden">
+            <div style="text-align: center;"><strong>Mi más cordial bienvenida, <span id="display-name"></span>!</strong></div>
+            <div class="menu-options">
+                <label><input type="checkbox" class="animal-option" value="Exep"> Openmind </label>
+                <label><input type="checkbox" class="animal-option" value="STD"> Consumidor estandar </label>
+                <label><input type="checkbox" class="animal-option" value="vegan"> Vegano </label>
+                <label><input type="checkbox" class="animal-option" value="Novegan"> Postres </label>
+                <label><input type="checkbox" class="animal-option" value="CGluten"> Con Gluten </label>
+                <label><input type="checkbox" class="animal-option" value="SGluten"> Sin Gluten </label>
+                <button onclick="guardarPreferencias()">Actualizar Muro</button>
+                <button onclick="borrarMisDatos()" style="background: #e67e22;">Borrar</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="content-wrapper" id="content-area">
+            <div id="default-message" style="text-align: center; color: #999;">
+                <p>Identifícate arriba para ver tu contenido personalizado.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="panel">
+            <h3>Personaliza tu experiencia:</h3><br>
+            <label><input type="checkbox" id="mode"> Modo Oscuro</label>
+            <label><input type="checkbox" id="contrast"> Alto Contraste</label>
+            <label><input type="checkbox" id="font"> Texto Grande</label>
+        </div>
+    </footer>
+
+    <script>
+        let usuarioActual = "";
+
+const biblioteca = {
+    // Categoría: Consumidor Openmind (Exep)
+    Exep: { 
+        t: "Petit Gateau Granada", 
+        d: "Una explosión de sabor inspirada en la ciudad, con detalles dorados y textura artesanal.", 
+        i: "P-Granada.jpg" 
+    },
+    // Categoría: Consumidor Estándar (STD)
+    STD: { 
+        t: "Tarta Milhoja Napoleón", 
+        d: "El clásico equilibrio de capas crujientes y crema suave que nunca falla.", 
+        i: "T-milhoja-Napoleon.jpg" 
+    },
+    // Categoría: Vegano (vegan)
+    vegan: { 
+        t: "Petit Gateau de Mango", 
+        d: "Postre 100% plant-based con frescura tropical y una cobertura vibrante.", 
+        i: "P-Mango.jpg" 
+    },
+    // Categoría: Postres (Novegan)
+    Novegan: { 
+        t: "Rosa Blanca de Vainilla", 
+        d: "Elegante postre en forma de rosa con crema ligera y corazón dulce.", 
+        i: "P-RosaBlanca.lpg" 
+    },
+    // Categoría: Con Gluten (CGluten)
+    CGluten: { 
+        t: "Tarta Honey Signature", 
+        d: "Nuestra tarta de la casa con capas de miel y un toque artesanal único.", 
+        i: "T-Honey.jpg" 
+    },
+    // Categoría: Sin Gluten (SGluten)
+    SGluten: { 
+        t: "Trufa de Café Intenso", 
+        d: "Un bocado potente y elegante con forma de grano de café, libre de gluten.", 
+        i: "P-cafe.jpg" 
+    }
+};
+
+        function cargarPerfil() {
+            const nombre = document.getElementById('username').value.trim();
+            if(!nombre) return;
+            usuarioActual = nombre;
+            document.getElementById('display-name').innerText = usuarioActual;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('settings-section').classList.remove('hidden');
+
+            const stored = JSON.parse(localStorage.getItem(`pref_anim_${usuarioActual}`));
+            
+            // Limpiamos el mensaje por defecto
+            const defaultMsg = document.getElementById('default-message');
+            if(defaultMsg) defaultMsg.remove();
+
+            if(stored) {
+                document.querySelectorAll('.animal-option').forEach(cb => {
+                    cb.checked = stored.includes(cb.value);
+                });
+                // Al cargar por primera vez, no animamos la salida, solo la entrada
+                renderizar(stored, false); 
+            } else {
+                renderizar([], false);
+            }
+        }
+
+        function guardarPreferencias() {
+            const seleccionados = Array.from(document.querySelectorAll('.animal-option:checked')).map(cb => cb.value);
+            localStorage.setItem(`pref_anim_${usuarioActual}`, JSON.stringify(seleccionados));
+            // Al actualizar, sí queremos animar la salida de las tarjetas viejas
+            renderizar(seleccionados, true); 
+        }
+
+        function renderizar(listaNuevas, animarSalida) {
+            const area = document.getElementById('content-area');
+            const tarjetasActuales = area.querySelectorAll('.card');
+            
+            // --- FASE 1: GESTIONAR LA SALIDA (Fade-out) ---
+            if (tarjetasActuales.length > 0 && animarSalida) {
+                tarjetasActuales.forEach(tarjeta => {
+                    tarjeta.classList.remove('fade-in'); // Quitamos la clase de entrada
+                    tarjeta.classList.add('fade-out'); // Añadimos la clase de salida
+                });
+
+                // Esperamos a que termine la animación CSS (0.5s = 500ms)
+                setTimeout(() => {
+                    ejecutarEntrada(area, listaNuevas);
+                }, 500); 
+            } else {
+                // Si no hay tarjetas o no queremos animar salida, vamos directo a la entrada
+                ejecutarEntrada(area, listaNuevas);
+            }
+        }
+
+        // --- FASE 2: GESTIONAR LA ENTRADA (Fade-in) ---
+        function ejecutarEntrada(area, lista) {
+            area.innerHTML = ""; // Limpiamos el contenedor
+
+            if (lista.length === 0) {
+                area.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #7f8c8d;">
+                        <p>¡Hola <strong>${usuarioActual}</strong>! Tu muro está vacío.<br>
+                        Selecciona tus intereses en el menú superior para empezar.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Creamos las nuevas tarjetas pero aún están invisibles (opacity: 0)
+            lista.forEach(key => {
+                const item = biblioteca[key];
+                if (item) {
+                    area.innerHTML += `
+                        <div class="card" id="card-${key}">
+                            <img src="${item.i}" alt="${item.t}">
+                            <div class="card-body">
+                                <h3>${item.t}</h3>
+                                <p>${item.d}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // Usamos un pequeñísimo delay (0ms es suficiente) para forzar al navegador
+            // a renderizar el HTML antes de aplicar la clase de animación.
+            setTimeout(() => {
+                area.querySelectorAll('.card').forEach(tarjeta => {
+                    tarjeta.classList.add('fade-in'); // Activamos la entrada suave
+                });
+            }, 50); 
+        }
+
+        function borrarMisDatos() {
+            if(confirm("¿Borrar perfil?")) {
+                localStorage.removeItem(`pref_anim_${usuarioActual}`);
+                location.reload();
+            }
+        }
+
+        // --- Cambio de apariencia (Modo Oscuro, Alto Contraste, Texto Grande) ---
+        const body = document.body;
+        
+        document.getElementById('mode').addEventListener('change', (e) => {
+            body.classList.toggle('dark-mode', e.target.checked);
+        });
+
+        document.getElementById('contrast').addEventListener('change', (e) => {
+            body.classList.toggle('high-contrast', e.target.checked);
+        });
+
+        document.getElementById('font').addEventListener('change', (e) => {
+            body.classList.toggle('large-text', e.target.checked);
+        });
+
+
+    </script>
+</body>
+</html>
